@@ -131,7 +131,7 @@ criterion = nn.CrossEntropyLoss()
 pbar = tqdm(dataloader, mininterval=300)
 for epoch in range(epochs):
     for i, (images, labels) in enumerate(pbar):
-        images.to(device)
+        images = images.to(device)
         out = model_ft(images)
 
         optimizer.zero_grad()
