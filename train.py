@@ -18,6 +18,7 @@ from data_util import *
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
+os.environ["CUDA_VISIBLE_DEVICES"] = '7'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Top level data directory. Here we assume the format of the directory conforms
