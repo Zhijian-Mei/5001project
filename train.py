@@ -138,6 +138,7 @@ for epoch in range(epochs):
         optimizer.zero_grad()
         loss = criterion(out,labels)
         loss.backward()
+        optimizer.step()
 
         print(loss)
 
