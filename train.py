@@ -30,24 +30,16 @@ model_name = "resnet"
 
 # Number of classes in the dataset
 num_classes = 4
-epochs = 10
+
 # Batch size for training (change depending on how much memory you have)
 batch_size = 32
 
 # Number of epochs to train for
 num_epochs = 15
 
-# Flag for feature extracting. When False, we finetune the whole model,
-#   when True we only update the reshaped layer params
-feature_extract = False
 
 
-def set_parameter_requires_grad(model, feature_extracting):
-    if feature_extracting:
-        for param in model.parameters():
-            param.requires_grad = False
-
-def initialize_model(model_name, num_classes, feature_extract, use_pretrained=True):
+def initialize_model(model_name, num_classes,use_pretrained=True):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -57,7 +49,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ Resnet18
         """
         model_ft = models.resnet18(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 224
@@ -66,7 +58,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ Alexnet
         """
         model_ft = models.alexnet(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.classifier[6].in_features
         model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
         input_size = 224
@@ -75,7 +67,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ VGG11_bn
         """
         model_ft = models.vgg11_bn(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.classifier[6].in_features
         model_ft.classifier[6] = nn.Linear(num_ftrs,num_classes)
         input_size = 224
@@ -84,7 +76,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ Squeezenet
         """
         model_ft = models.squeezenet1_0(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1,1), stride=(1,1))
         model_ft.num_classes = num_classes
         input_size = 224
@@ -93,7 +85,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         """ Densenet
         """
         model_ft = models.densenet121(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.classifier.in_features
         model_ft.classifier = nn.Linear(num_ftrs, num_classes)
         input_size = 224
@@ -103,7 +95,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         Be careful, expects (299,299) sized images and has auxiliary output
         """
         model_ft = models.inception_v3(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         # Handle the auxilary net
         num_ftrs = model_ft.AuxLogits.fc.in_features
         model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
@@ -119,17 +111,19 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
     return model_ft, input_size
 
 # Initialize the model for this run
-model_ft, input_size = initialize_model(model_name, num_classes, feature_extract, use_pretrained=True)
+model_ft, input_size = initialize_model(model_name, num_classes, use_pretrained=True)
 
 # Print the model we just instantiated
 
 dataloader = get_data(image_size=input_size,data_path=data_dir,batch_size=batch_size)
 
 model_ft.to(device)
+
 optimizer = optim.AdamW(model_ft.parameters(), lr=0.001)
+
 criterion = nn.CrossEntropyLoss()
 pbar = tqdm(dataloader, mininterval=300)
-for epoch in range(epochs):
+for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(pbar):
         images = images.to(device)
         labels = labels.to(device)
