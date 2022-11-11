@@ -123,6 +123,8 @@ optimizer = optim.AdamW(model_ft.parameters(), lr=0.001)
 
 criterion = nn.CrossEntropyLoss()
 pbar = tqdm(dataloader, mininterval=300)
+
+model_ft.train()
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(pbar):
         images = images.to(device)
