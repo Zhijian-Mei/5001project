@@ -138,4 +138,5 @@ for epoch in range(epochs):
         loss = criterion(out,labels)
         loss.backward()
 
+        print(loss)
 
