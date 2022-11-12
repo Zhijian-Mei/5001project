@@ -130,7 +130,7 @@ evalloader = DataLoader(eval_dataset,batch_size=batch_size,shuffle=True)
 
 model_ft.to(device)
 
-optimizer = optim.AdamW(model_ft.parameters(), lr=0.001)
+optimizer = optim.AdamW(model_ft.parameters(), lr=0.0001)
 
 criterion = nn.CrossEntropyLoss()
 trainbar = tqdm(trainloader)
