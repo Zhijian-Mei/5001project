@@ -35,7 +35,7 @@ model_name = "resnet"
 num_classes = 4
 
 # Batch size for training (change depending on how much memory you have)
-batch_size = 32
+batch_size = 16
 
 # Number of epochs to train for
 num_epochs = 15
@@ -133,8 +133,8 @@ model_ft.to(device)
 optimizer = optim.AdamW(model_ft.parameters(), lr=0.001)
 
 criterion = nn.CrossEntropyLoss()
-trainbar = tqdm(trainloader, mininterval=300)
-evalbar = tqdm(evalloader,miniters=300)
+trainbar = tqdm(trainloader)
+evalbar = tqdm(evalloader)
 
 best_acc = -1
 best_model = None
