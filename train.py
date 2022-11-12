@@ -167,7 +167,7 @@ for epoch in range(num_epochs):
         running_corrects += torch.sum(preds == labels.data)
 
         epoch_acc = running_corrects.double() / len(eval_dataset)
-    print(f'epoch{epoch+1} loss: ',epoch_acc.item())
+    print(f'epoch{epoch+1} accuracy: ',epoch_acc.item())
     if epoch_acc > best_acc:
         best_acc = epoch_acc
         best_model = copy.deepcopy(model_ft.state_dict())
