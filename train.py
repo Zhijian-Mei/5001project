@@ -35,7 +35,7 @@ model_name = "resnet"
 num_classes = 4
 
 # Batch size for training (change depending on how much memory you have)
-batch_size = 16
+batch_size = 32
 
 # Number of epochs to train for
 num_epochs = 15
