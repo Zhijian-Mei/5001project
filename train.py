@@ -10,12 +10,15 @@ import matplotlib.pyplot as plt
 import time
 import os
 import copy
-
+from sklearn.model_selection import train_test_split
+from torch.utils.data import random_split
 from tqdm import tqdm
 
 from data_util import *
 
 import ssl
+
+torch.manual_seed(48)
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -115,18 +118,30 @@ model_ft, input_size = initialize_model(model_name, num_classes, use_pretrained=
 
 # Print the model we just instantiated
 
-dataloader = get_data(image_size=input_size,data_path=data_dir,batch_size=batch_size)
+dataset = get_dataset(image_size=input_size,data_path=data_dir,batch_size=batch_size)
+
+train_size = int(0.8 * len(dataset))
+test_size = len(dataset) - train_size
+
+train_dataset, eval_dataset = random_split(dataset, [train_size, test_size])
+
+trainloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+evalloader = DataLoader(eval_dataset,batch_size=batch_size,shuffle=True)
 
 model_ft.to(device)
 
 optimizer = optim.AdamW(model_ft.parameters(), lr=0.001)
 
 criterion = nn.CrossEntropyLoss()
-pbar = tqdm(dataloader, mininterval=300)
+trainbar = tqdm(trainloader, mininterval=300)
+evalbar = tqdm(evalloader,miniters=300)
+
+best_acc = -1
+best_model = None
 
 model_ft.train()
 for epoch in range(num_epochs):
-    for i, (images, labels) in enumerate(pbar):
+    for i, (images, labels) in enumerate(trainbar):
         images = images.to(device)
         labels = labels.to(device)
         out = model_ft(images)
@@ -136,5 +151,24 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
-        print(loss)
+    running_loss = 0.0
+    running_corrects = 0
+    model_ft.eval()
+    for i, (images, labels) in enumerate(evalbar):
+        images = images.to(device)
+        labels = labels.to(device)
+        out = model_ft(images)
+        loss = criterion(out, labels)
 
+        _, preds = torch.max(out, 1)
+
+        running_loss += loss.item() * images.size(0)
+        running_corrects += torch.sum(preds == labels.data)
+
+        epoch_acc = running_corrects.double() / len(eval_dataset)
+
+        if epoch_acc > best_acc:
+            best_acc = epoch_acc
+            best_model = copy.deepcopy(model_ft.state_dict())
+
+torch.save(best_model,f'best_{model_name}_ft.pt')
